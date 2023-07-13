@@ -8,11 +8,16 @@ readme = "README.md"
 packages = [{include = "podcast_summarizer"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 openai = "^0.27.8"
 click = "^8.1.4"
+openai-whisper = {git = "https://github.com/openai/whisper.git"}
+click-spinner = "^0.1.10"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+podcast-summarizer = "podcast_summarizer.cli:cli"
