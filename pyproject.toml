@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "podcast-summarizer"
-version = "0.1.0"
+version = "0.2.0"
 description = "Summarizes podcasts."
 authors = ["Diego Quinteiro <diegoquinteiro@gmail.com>"]
 license = "MIT"
@@ -13,6 +13,8 @@ openai = "^0.27.8"
 click = "^8.1.4"
 openai-whisper = {git = "https://github.com/openai/whisper.git"}
 click-spinner = "^0.1.10"
+yt-dlp = "^2023.7.6"
+webvtt-py = "^0.4.6"
 
 
 [build-system]

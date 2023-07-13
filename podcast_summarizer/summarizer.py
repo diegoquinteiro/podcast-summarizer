@@ -4,6 +4,7 @@ import urllib.request
 import tempfile
 import whisper
 
+
 messages = []
 SUPPORTED_AUDIO_FORMATS = ["m4a","mp3","webm","mp4","mpga","wav","mpeg"]
 
@@ -29,8 +30,8 @@ def transcribe(mp3_path):
 
     return result["text"]
 
-def summarize(text):
-    return askLLM(f'Please summarize the following podcast transcription in its original language: {text}')
+def summarize(text, language):
+    return askLLM(f'Please summarize the following podcast transcription, respond in "{language}": {text}')
 
 def askLLM(message):
     openai.api_key = os.getenv("OPENAI_API_KEY")

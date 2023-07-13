@@ -14,11 +14,14 @@ pip install podcast-summarizer
 # Summarize a podcast audio from an URL.
 podcast-summarizer http://.../audio.mp3
 
+# Summarize a podcast audio from an YouTube video.
+podcast-summarizer https://www.youtube.com/watch?v=...
+
 # Summarize a podcast audio from local file.
 podcast-summarizer audio.mp3
 
 # Summarize a podcast audio and save transcription and summary to files.
-podcast-summarizer -t transcription.txt -s summary.txt http://.../audio.mp3
+podcast-summarizer -t transcription.txt -s summary.txt audio.mp3
 
 # Summarize an already transcribed podcast
 podcast-summarizer transcription.txt
