@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "podcast-summarizer"
-version = "0.3.0"
+version = "0.3.1"
 description = "Summarizes podcasts."
 authors = ["Diego Quinteiro <diegoquinteiro@gmail.com>"]
 license = "MIT"
