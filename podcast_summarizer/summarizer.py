@@ -2,6 +2,7 @@ import os
 import openai
 import urllib.request
 import tempfile
+import tiktoken
 import whisper
 import logging
 
@@ -10,9 +11,12 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 
 messages = []
 SUPPORTED_AUDIO_FORMATS = ["m4a", "mp3", "webm", "mp4", "mpga", "wav", "mpeg"]
+TOKEN_LIMIT = 8192
 
 
 def openAudio(url_or_path, audio_format):
+    '''Opens an audio file from a URL or path.'''
+
     if os.path.isfile(url_or_path):
         return open(url_or_path, "rb")
     try:
@@ -36,18 +40,76 @@ def transcribe(mp3_path):
     return result["text"]
 
 
-def summarize(text, language):
-    return askLLM(
-        f'Please summarize the following podcast transcription, respond in "{language}": {text}'
-    )
+def summarize(text, language=None):
+    '''Summarizes the podcast using the LLM model.'''
+
+    if num_tokens_from_string(text) > TOKEN_LIMIT:
+        # Split text into multiple parts and summarize each part
+        text = compress_text(text, language)
+
+    if language:
+        return ask_LLM(
+            f"Please summarize the following podcast transcription,\
+                respond in \"{language}\": {text}"
+        )
+    else:
+        return ask_LLM(
+            f'Please summarize the following podcast transcription,\
+                respond in the same language as the transcription: {text}'
+        )
 
 
-def askLLM(message):
+def compress_text(text, language=None):
+    '''Compresses the text by recursively summarizing it in two parts.'''
+
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    tokens = encoding.encode(text)
+
+    # Split token list in two
+    first_tokens = tokens[: len(tokens) // 2]
+    second_tokens = tokens[len(tokens) // 2:]
+
+    if len(first_tokens) > TOKEN_LIMIT:
+        first_tokens = encoding.encode(
+            compress_text(encoding.decode(first_tokens)))
+
+    if len(second_tokens) > TOKEN_LIMIT:
+        second_tokens = encoding.encode(
+            compress_text(encoding.decode(second_tokens)))
+
+    # Summarize each half
+    first_half = compress_through_LLM(encoding.decode(first_tokens), language)
+    second_half = compress_through_LLM(
+        encoding.decode(second_tokens), language)
+
+    # Combine summaries
+    return first_half + '' + second_half
+
+
+def compress_through_LLM(text, language=None):
+    '''Summarizes the text using the LLM model.'''
+    if language:
+        return ask_LLM(
+            f"Please summarize the following podcast transcription,\
+                respond in \"{language}\": {text}", False)
+    else:
+        return ask_LLM(
+            f"Please make a summarized version of this podcast transcription:\
+              {text}", False)
+
+
+def ask_LLM(message, chat=True):
+    if chat:
+        global messages
+    else:
+        messages = []
+
     openai.api_key = os.getenv("OPENAI_API_KEY")
     if not openai.api_key:
         logging.error("OPENAI_API_KEY not set", exc_info=True)
 
-    global messages
+    if num_tokens_from_string(message) > TOKEN_LIMIT:
+        logging.error("Message exceeds token limit", exc_info=True)
 
     messages += [
         {
@@ -69,3 +131,9 @@ def askLLM(message):
 
     response = completion.choices[0].message.content
     return response
+
+
+def num_tokens_from_string(string, encoding_name="gpt-3.5-turbo"):
+    encoding = tiktoken.encoding_for_model(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens

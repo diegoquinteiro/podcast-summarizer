@@ -26,7 +26,7 @@ from shutil import which
 @click.option(
     "--language",
     "-l",
-    default="en",
+    default=None,
     help="The language code for the language of the podcast.",
 )
 @click.argument("podcast_url_or_path")
@@ -49,6 +49,9 @@ def cli(podcast_url_or_path, summary_file, transcription_file, audio_format, lan
         )
 
     if podcast_url_or_path.startswith("https://www.youtube.com/watch?v="):
+        if not language:
+            language = youtube.detect_language(podcast_url_or_path)
+
         podcast_url_or_path = youtube.extract_from_youtube(
             podcast_url_or_path, transcription_file, language
         )
@@ -89,12 +92,14 @@ def cli(podcast_url_or_path, summary_file, transcription_file, audio_format, lan
         fg="blue",
     )
 
-    prompt = click.prompt(click.style("\n> ", fg="bright_white"), prompt_suffix="")
+    prompt = click.prompt(click.style(
+        "\n> ", fg="bright_white"), prompt_suffix="")
     while True:
         if prompt.lower() == "exit":
             break
-        click.echo(summarizer.askLLM(prompt))
-        prompt = click.prompt(click.style("\n> ", fg="bright_white"), prompt_suffix="")
+        click.echo(summarizer.ask_LLM(prompt))
+        prompt = click.prompt(click.style(
+            "\n> ", fg="bright_white"), prompt_suffix="")
 
 
 if __name__ == "__main__":
