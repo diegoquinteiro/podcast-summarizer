@@ -15,7 +15,11 @@ openai-whisper = {git = "https://github.com/openai/whisper.git"}
 click-spinner = "^0.1.10"
 yt-dlp = "^2023.7.6"
 webvtt-py = "^0.4.6"
+tiktoken = "0.3.3"
 
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]
